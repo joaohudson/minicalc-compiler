@@ -4,7 +4,7 @@
 
 int main(void){
 
-    Lexer_Init("data.txt");
+    Lexer_Init("fonte.mc");
 
     Token token;
 

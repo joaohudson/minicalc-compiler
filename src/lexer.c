@@ -83,8 +83,37 @@ Token Lexer_NextToken(){
         }
     }
     else{
-        token.type = TOKEN_ERROR;
-        token.data.message = "Caractere invalido!";
+        switch(buffer[position]){
+            case '(':
+                token.type = TOKEN_SYMBOL_OPENPAR;
+                break;
+
+            case ')':
+                token.type = TOKEN_SYMBOL_CLOSEPAR;
+                break;
+
+            case '+':
+                token.type = TOKEN_SYMBOL_PLUS;
+                break;
+
+            case '-':
+                token.type = TOKEN_SYMBOL_MINUS;
+                break;
+
+            case '*':
+                token.type = TOKEN_SYMBOL_MULT;
+                break;
+
+            case '/':
+                token.type = TOKEN_SYMBOL_DIV;
+                break;
+
+            default:
+                token.type = TOKEN_ERROR;
+                token.data.message = "Caractere invalido!";
+        }
+
+        position++;
     }
 
     return token;
@@ -108,8 +137,32 @@ void Lexer_PrintToken(Token token){
     case TOKEN_INT:
         printf("TOKEN_INT: %d\n", token.data.value);
         break;
+
+    case TOKEN_SYMBOL_DIV:
+        printf("TOKEN_SYMBOL_DIV\n");
+        break;
+
+    case TOKEN_SYMBOL_MULT:
+        printf("TOKEN_SYMBOL_MULT\n");
+        break;
+
+    case TOKEN_SYMBOL_MINUS:
+        printf("TOKEN_SYMBOL_MINUS\n");
+        break;
+
+    case TOKEN_SYMBOL_PLUS:
+        printf("TOKEN_SYMBOL_PLUS\n");
+        break;
+
+    case TOKEN_SYMBOL_OPENPAR:
+        printf("TOKEN_SYMBOL_OPENPAR\n");
+        break;
+
+    case TOKEN_SYMBOL_CLOSEPAR:
+        printf("TOKEN_SYMBOL_CLOSEPAR\n");
+        break;
     
     default:
-        printf("Token nao reconhecido!");
+        printf("Token nao reconhecido!\n");
     }
 }
