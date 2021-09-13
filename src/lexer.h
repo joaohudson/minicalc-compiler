@@ -23,7 +23,7 @@ typedef struct
     } data;
 }Token;
 
-void Lexer_Init();
+void Lexer_Init(const char* fileName);
 
 Token Lexer_NextToken();
 

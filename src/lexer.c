@@ -35,10 +35,7 @@ void Lexer_Quit(){
 }
 
 Token Lexer_NextToken(){
-    Token token = {
-        TOKEN_ERROR,
-        0
-    };
+    Token token;
 
     while(position < bufferSize && isspace(buffer[position]))
         ++position;
@@ -79,6 +76,7 @@ Token Lexer_NextToken(){
             token.type = TOKEN_PRINT;
         }
         else{
+            token.type = TOKEN_ERROR;
             token.data.message = "Token inesperado!";
         }
     }
@@ -135,7 +133,7 @@ void Lexer_PrintToken(Token token){
         break;
 
     case TOKEN_INT:
-        printf("TOKEN_INT: %d\n", token.data.value);
+        printf("TOKEN_INT: %ld\n", token.data.value);
         break;
 
     case TOKEN_SYMBOL_DIV:
