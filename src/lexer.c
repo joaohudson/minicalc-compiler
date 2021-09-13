@@ -20,7 +20,7 @@ static void Reserve(size_t size){
         tokenBuffer = malloc(size);
         tokenBufferSize = size;
 
-        Assert(tokenBuffer != NULL, "Erro ao alocar memoria!\n");
+        Assert(tokenBuffer != NULL, "[lexer.c] - [Reserve] - Erro ao alocar memoria!\n");
     }
 }
 

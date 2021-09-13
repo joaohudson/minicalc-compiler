@@ -20,7 +20,7 @@ long File_Length(FILE *file){
 char* File_ReadAllText(const char* fileName){
     FILE *file = fopen(fileName, "r");
 
-    Assert(file != NULL, "Nao foi possivel abrir o arquivo!");
+    Assert(file != NULL, "[file.c] - [File_ReadAllText] - Nao foi possivel abrir o arquivo!");
 
     long len = File_Length(file);
     char *data = (char*)malloc(len + 1);
