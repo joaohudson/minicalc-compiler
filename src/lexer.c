@@ -43,7 +43,27 @@ Token Lexer_NextToken(){
     while(position < bufferSize && isspace(buffer[position]))
         ++position;
 
-    if(position < bufferSize){
+
+    if(position >= bufferSize){
+        token.type = TOKEN_EOF;
+    }
+    else if(isdigit(buffer[position])){
+        
+        int begin = position;
+
+        while(position < bufferSize && isdigit(buffer[position]))
+            ++position;
+
+        int length = position - begin;
+
+        Reserve(length + 1);//1 slot extra para o '\0'
+        memcpy(tokenBuffer, buffer + begin, length);
+        tokenBuffer[length] = '\0';//length = tokenBufferSize - 1 = último slot do buffer
+
+        token.type = TOKEN_INT;
+        token.data.value = atoi(tokenBuffer);
+
+    }else if(isalpha(buffer[position])){
         int begin = position;
 
         while(position < bufferSize && !isspace(buffer[position]))
@@ -63,7 +83,8 @@ Token Lexer_NextToken(){
         }
     }
     else{
-        token.type = TOKEN_EOF;
+        token.type = TOKEN_ERROR;
+        token.data.message = "Caractere invalido!";
     }
 
     return token;
