@@ -9,12 +9,15 @@ void Assert(int cond, const char* error){
     }
 }
 
-long File_Length(FILE *file){
-    fseek(file, 0, SEEK_END);
-    long size = ftell(file);
+size_t FileLength(FILE *file){
+    int i = 0;
+
+    while(getc(file) != EOF)
+        i++;
+
     rewind(file);
 
-    return size;
+    return i;
 }
 
 char* File_ReadAllText(const char* fileName){
@@ -22,7 +25,7 @@ char* File_ReadAllText(const char* fileName){
 
     Assert(file != NULL, "[file.c] - [File_ReadAllText] - Nao foi possivel abrir o arquivo!");
 
-    long len = File_Length(file);
+    long len = FileLength(file);
     char *data = (char*)malloc(len + 1);
     
     fread(data, 1, len, file);
