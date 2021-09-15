@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include "file.h"
 #include "lexer.h"
 
@@ -47,9 +48,16 @@ Token Lexer_NextToken(){
     else if(isdigit(buffer[position])){
         
         int begin = position;
+        bool isFloat = false;
 
-        while(position < bufferSize && isdigit(buffer[position]))
+        while(position < bufferSize && isdigit(buffer[position])){
             ++position;
+
+            if(buffer[position] == '.' && !isFloat){
+                isFloat = true;
+                ++position;
+            }
+        }
 
         int length = position - begin;
 
@@ -57,8 +65,14 @@ Token Lexer_NextToken(){
         memcpy(tokenBuffer, buffer + begin, length);
         tokenBuffer[length] = '\0';//length = tokenBufferSize - 1 = último slot do buffer
 
-        token.type = TOKEN_INT;
-        token.data.value = atoi(tokenBuffer);
+        if(isFloat){
+            token.type = TOKEN_FLOAT;
+            token.data.valueF = atof(tokenBuffer);
+        }
+        else{
+            token.type = TOKEN_INT;
+            token.data.value = atoi(tokenBuffer);
+        }
 
     }else if(isalpha(buffer[position])){
         int begin = position;
@@ -175,8 +189,12 @@ void Lexer_PrintToken(Token token){
     case TOKEN_SYMBOL_CLOSEBRA:
         printf("TOKEN_SYMBOL_CLOSEBRA\n");
         break;
+
+    case TOKEN_FLOAT:
+        printf("TOKEN_FLOAT: %lf\n", token.data.valueF);
+        break;
     
     default:
-        printf("Token nao reconhecido!\n");
+        printf("Token nao reconhecido: %d\n", token.type);
     }
 }

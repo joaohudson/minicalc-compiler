@@ -13,7 +13,8 @@ typedef enum{
     TOKEN_SYMBOL_OPENPAR,
     TOKEN_SYMBOL_CLOSEPAR,
     TOKEN_SYMBOL_OPENBRA,
-    TOKEN_SYMBOL_CLOSEBRA
+    TOKEN_SYMBOL_CLOSEBRA,
+    TOKEN_FLOAT
 }TokenType;
 
 typedef struct
@@ -21,6 +22,7 @@ typedef struct
     TokenType type;
     union{
         long value;
+        double valueF;
         char* message;
     } data;
 }Token;
