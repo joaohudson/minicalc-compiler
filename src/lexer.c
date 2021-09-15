@@ -106,6 +106,14 @@ Token Lexer_NextToken(){
                 token.type = TOKEN_SYMBOL_DIV;
                 break;
 
+            case '[':
+                token.type = TOKEN_SYMBOL_OPENBRA;
+                break;
+
+            case ']':
+                token.type = TOKEN_SYMBOL_CLOSEBRA;
+                break;
+
             default:
                 token.type = TOKEN_ERROR;
                 token.data.message = "Caractere invalido!";
@@ -158,6 +166,14 @@ void Lexer_PrintToken(Token token){
 
     case TOKEN_SYMBOL_CLOSEPAR:
         printf("TOKEN_SYMBOL_CLOSEPAR\n");
+        break;
+
+    case TOKEN_SYMBOL_OPENBRA:
+        printf("TOKEN_SYMBOL_OPENBRA\n");
+        break;
+
+    case TOKEN_SYMBOL_CLOSEBRA:
+        printf("TOKEN_SYMBOL_CLOSEBRA\n");
         break;
     
     default:
