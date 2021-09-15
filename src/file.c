@@ -9,7 +9,7 @@ void Assert(int cond, const char* error){
     }
 }
 
-size_t FileLength(FILE *file){
+static size_t FileLength(FILE *file){
     int i = 0;
 
     while(getc(file) != EOF)
