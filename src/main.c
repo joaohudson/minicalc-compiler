@@ -2,10 +2,21 @@
 #include <stdlib.h>
 #include "lexer.h"
 #include "parser.h"
+#include "file.h"
 
-int main(void){
+int main(int argc, char**argv){
 
-    Lexer_Init("fonte.mc");
+    if(argc < 2){
+        fprintf(stderr, "Erro: informe o nome do programa!\n");
+        exit(1);
+    }
+
+    if(!File_Exists(argv[1])){
+        fprintf(stderr, "Erro: informe um nome de um programa existente!\n");
+        exit(1);
+    }
+
+    Lexer_Init(argv[1]);
 
     Program program = Parser_Analyze();
 
