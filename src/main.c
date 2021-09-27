@@ -1,23 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "lexer.h"
+#include "parser.h"
 
 int main(void){
 
     Lexer_Init("fonte.mc");
 
-    Token token;
+    Program program = Parser_Analyze();
 
-    do{
-        token = Lexer_NextToken();
-        Lexer_PrintToken(token);
+    Parser_ExecuteProgram(program);
 
-        if(token.type == TOKEN_ERROR){
-            fprintf(stderr, "%s\n", token.data.message);
-            break;
-        }
-
-    }while(token.type != TOKEN_EOF);
+    Parser_DestroyProgram(program);
 
     Lexer_Quit();
 
