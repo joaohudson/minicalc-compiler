@@ -20,6 +20,18 @@ static size_t FileLength(FILE *file){
     return i;
 }
 
+bool File_Exists(const char *fileName){
+    FILE *file = fopen(fileName, "r");
+
+    if(file == NULL){
+        return false;
+    }
+
+    fclose(file);
+
+    return true;
+}
+
 char* File_ReadAllText(const char* fileName){
     FILE *file = fopen(fileName, "r");
 
