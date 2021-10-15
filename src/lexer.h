@@ -31,6 +31,8 @@ void Lexer_Init(const char* fileName);
 
 Token Lexer_NextToken();
 
+void Lexer_CheckToken(Token token);
+
 void Lexer_PrintToken(Token token);
 
 void Lexer_Quit();

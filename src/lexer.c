@@ -35,6 +35,13 @@ void Lexer_Quit(){
     free(buffer);
 }
 
+void Lexer_CheckToken(Token token){
+    if(token.type == TOKEN_ERROR){
+        fprintf(stderr, "Erro lexico: %s\n", token.data.message);
+        exit(1);
+    }
+}
+
 Token Lexer_NextToken(){
     Token token;
 
@@ -141,7 +148,7 @@ Token Lexer_NextToken(){
 
             default:
                 token.type = TOKEN_ERROR;
-                token.data.message = "Caractere invalido!";
+                token.data.message = "Token invalido!";
         }
 
         position++;

@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-static int tokenTypeToOperation(TokenType token){
+static int TokenTypeToOperation(TokenType token){
     switch (token)
     {
         case TOKEN_SYMBOL_PLUS:
@@ -24,24 +24,16 @@ static int tokenTypeToOperation(TokenType token){
     }
 }
 
-Program Parser_Analyze(){
-    Program program;
+static Expression* ExpressionAnalyze(){
+    Expression *expression = malloc(sizeof(Expression));
 
-    program.expression = malloc(sizeof(Expression));
-
-    Assert(program.expression != NULL, "[parser.c] - [Parser_Analyze] - Nao foi possivel alocar memoria!\n");
+    Assert(expression != NULL, "[parser.c] - [Parser_Analyze] - Nao foi possivel alocar memoria!\n");
 
     Token token;
     bool isFloatExpression = false;
 
     token = Lexer_NextToken();
-
-    if(token.type != TOKEN_PRINT){
-        fprintf(stderr, "Erro de sintaxe: palavra chave \'print\' esperada no inicio da expressao\n");
-        exit(1);
-    }
-
-    token = Lexer_NextToken();
+    Lexer_CheckToken(token);
 
     if(token.type != TOKEN_SYMBOL_OPENPAR){
         fprintf(stderr, "Erro de sintaxe: token esperado \'(\'\n");
@@ -49,6 +41,7 @@ Program Parser_Analyze(){
     }
 
     token = Lexer_NextToken();
+    Lexer_CheckToken(token);
 
     if(token.type != TOKEN_INT && token.type != TOKEN_FLOAT){
         fprintf(stderr, "Erro de sintaxe: era esperado um numero\n");
@@ -58,26 +51,28 @@ Program Parser_Analyze(){
     isFloatExpression = token.type == TOKEN_FLOAT;
 
     if(isFloatExpression){
-        program.expression->parameterType = PARAMETER_TYPE_FLOAT;
-        program.expression->parameter0.valueF = token.data.valueF;
+        expression->parameterType = PARAMETER_TYPE_FLOAT;
+        expression->parameter0.valueF = token.data.valueF;
     }
     else{
-        program.expression->parameterType = PARAMETER_TYPE_INT;
-        program.expression->parameter0.value = token.data.value;
+        expression->parameterType = PARAMETER_TYPE_INT;
+        expression->parameter0.value = token.data.value;
     }
 
     token = Lexer_NextToken();
+    Lexer_CheckToken(token);
 
-    int operation = tokenTypeToOperation(token.type);
+    int operation = TokenTypeToOperation(token.type);
 
     if(operation == -1){
         fprintf(stderr, "Erro de sintaxe: era esperado um operador\n");
         exit(1);
     }
 
-    program.expression->operation = operation;
+    expression->operation = operation;
 
     token = Lexer_NextToken();
+    Lexer_CheckToken(token);
 
     if(token.type != TOKEN_INT && token.type != TOKEN_FLOAT){
         fprintf(stderr, "Erro de sintaxe: era esperado um numero\n");
@@ -85,17 +80,37 @@ Program Parser_Analyze(){
     }
 
     if(isFloatExpression){
-        program.expression->parameter1.valueF = token.type == TOKEN_FLOAT ? token.data.valueF : (double)token.data.value;
+        expression->parameter1.valueF = token.type == TOKEN_FLOAT ? token.data.valueF : (double)token.data.value;
     }
     else{
-        program.expression->parameter1.value = token.type == TOKEN_FLOAT ? (long)token.data.valueF : token.data.value;
+        expression->parameter1.value = token.type == TOKEN_FLOAT ? (long)token.data.valueF : token.data.value;
     }
 
     token = Lexer_NextToken();
+    Lexer_CheckToken(token);
 
     if(token.type != TOKEN_SYMBOL_CLOSEPAR){
         fprintf(stderr, "Erro de sintaxe: token esperado \')\'\n");
+        exit(1);
     }
+
+    return expression;
+}
+
+Program Parser_Analyze(){
+    Program program;
+
+    Token token;
+
+    token = Lexer_NextToken();
+    Lexer_CheckToken(token);
+
+    if(token.type != TOKEN_PRINT){
+        fprintf(stderr, "Erro de sintaxe: palavra chave \'print\' esperada no inicio da expressao\n");
+        exit(1);
+    }
+
+    program.expression = ExpressionAnalyze();
 
     return program;
 }
