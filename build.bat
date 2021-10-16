@@ -1,1 +1,1 @@
-gcc src/*.c -Wall -o main.exe
+gcc src/*.c -Wall -o minicalc.exe
