@@ -32,6 +32,8 @@ static Expression* ExpressionAnalyze(){
     Assert(expression != NULL, "[parser.c] - [Parser_Analyze] - Nao foi possivel alocar memoria!\n");
 
     Token token;
+    TokenType closeTokenType;//tipo do token de fechamento, ')' ou ']' deve ser igual ao de abertura
+    char closeTokenChar, openTokenChar;
 
     token = Lexer_NextToken();
     Lexer_CheckToken(token);
@@ -50,8 +52,20 @@ static Expression* ExpressionAnalyze(){
         return expression;
     }
 
-    if(token.type != TOKEN_SYMBOL_OPENPAR){
-        fprintf(stderr, "Erro de sintaxe: token esperado \'(\'\n");
+    if(token.type == TOKEN_SYMBOL_OPENPAR){
+        closeTokenType = TOKEN_SYMBOL_CLOSEPAR;
+        closeTokenChar = ')';
+        openTokenChar = '(';
+    }
+    else{
+        closeTokenType = TOKEN_SYMBOL_CLOSEBRA;
+        closeTokenChar = ']';
+        openTokenChar = '[';        
+    }
+     
+
+    if(token.type != TOKEN_SYMBOL_OPENPAR && token.type != TOKEN_SYMBOL_OPENBRA){
+        fprintf(stderr, "Erro de sintaxe: token esperado \'%c\'\n", openTokenChar);
         exit(1);
     }
 
@@ -72,8 +86,8 @@ static Expression* ExpressionAnalyze(){
     token = Lexer_NextToken();
     Lexer_CheckToken(token);
 
-    if(token.type != TOKEN_SYMBOL_CLOSEPAR){
-        fprintf(stderr, "Erro de sintaxe: token esperado \')\'\n");
+    if(token.type != closeTokenType){
+        fprintf(stderr, "Erro de sintaxe: token esperado \'%c\'\n", closeTokenChar);
         exit(1);
     }
 
