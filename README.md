@@ -5,5 +5,5 @@ Use Mode:
 
 - Build the project with build.bat script
 
-- Run the project:
-./minicalc fonte.mc
+- Run the project with the command:
+"./minicalc fonte.mc" or "minicalc fonte.mc"
