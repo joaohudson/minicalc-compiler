@@ -21,8 +21,8 @@ typedef struct
 {
     TokenType type;
     union{
-        long value;
-        double valueF;
+        long valueInt;
+        double valueFloat;
         char* message;
     } data;
 }Token;

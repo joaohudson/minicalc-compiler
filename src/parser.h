@@ -1,29 +1,33 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 
+#include <stdbool.h>
+
 typedef enum{
-    OPERATION_PLUS, OPERATION_MINUS, OPERATION_MULT, OPERATION_DIV
+    OPERATION_PLUS, OPERATION_MINUS, OPERATION_MULT, OPERATION_DIV, OPERATION_CONST
 }Operation;
 
 typedef enum{
-    PARAMETER_TYPE_INT, PARAMETER_TYPE_FLOAT
-}ParameterType;
+    EXPRESSION_TYPE_INT, EXPRESSION_TYPE_FLOAT
+}ExpressionType;
 
-typedef struct 
-{
-    ParameterType parameterType;
-    Operation operation;
-    
+typedef struct {
+    bool isFloat;
     union{
-        double valueF;
-        long value;
-    } parameter0;
+        long valueInt;
+        double valueFloat;
+    }data;
+}Number;
+
+typedef struct tagExpression
+{
+    ExpressionType expressionType;
+    Operation operation;
+
+    struct tagExpression *parameter0;
+    struct tagExpression *parameter1;
     
-    union 
-    {
-        double valueF;
-        long value;
-    } parameter1;
+    Number value;
 
 }Expression;
 
@@ -33,6 +37,8 @@ typedef struct{
 }Program;
 
 Program Parser_Analyze();
+
+void Parser_PrintExpression();
 
 void Parser_DestroyProgram(Program program);
 

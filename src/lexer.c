@@ -85,11 +85,11 @@ Token Lexer_NextToken(){
 
         if(isFloat){
             token.type = TOKEN_FLOAT;
-            token.data.valueF = atof(tokenBuffer);
+            token.data.valueFloat = atof(tokenBuffer);
         }
         else{
             token.type = TOKEN_INT;
-            token.data.value = atoi(tokenBuffer);
+            token.data.valueInt = atoi(tokenBuffer);
         }
 
     }else if(isalpha(buffer[position])){
@@ -173,7 +173,7 @@ void Lexer_PrintToken(Token token){
         break;
 
     case TOKEN_INT:
-        printf("TOKEN_INT: %ld\n", token.data.value);
+        printf("TOKEN_INT: %ld\n", token.data.valueInt);
         break;
 
     case TOKEN_SYMBOL_DIV:
@@ -209,7 +209,7 @@ void Lexer_PrintToken(Token token){
         break;
 
     case TOKEN_FLOAT:
-        printf("TOKEN_FLOAT: %lf\n", token.data.valueF);
+        printf("TOKEN_FLOAT: %lf\n", token.data.valueFloat);
         break;
     
     default:
