@@ -3,7 +3,7 @@ Compiler for a Simple Language: MiniCalc
 
 Use Mode:
 
-- Build project with build.bat script
+- Build the project with build.bat script
 
-- Run project:
+- Run the project:
 ./minicalc fonte.mc
