@@ -20,8 +20,8 @@ int main(int argc, char**argv){
 
     Program program = Parser_Analyze();
 
-    Parser_PrintExpression(program);
-    //Parser_ExecuteProgram(program);
+    //Parser_PrintExpression(program);
+    Parser_ExecuteProgram(program);
 
     Parser_DestroyProgram(program);
 

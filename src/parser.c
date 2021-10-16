@@ -37,15 +37,15 @@ static Expression* ExpressionAnalyze(){
     Lexer_CheckToken(token);
 
     if(token.type == TOKEN_INT){
-        expression->expressionType = EXPRESSION_TYPE_INT;
         expression->operation = OPERATION_CONST;
+        expression->value.isFloat = false;
         expression->value.data.valueInt = token.data.valueInt;
         return expression;
     }
 
     if(token.type == TOKEN_FLOAT){
-        expression->expressionType = EXPRESSION_TYPE_FLOAT;
         expression->operation = OPERATION_CONST;
+        expression->value.isFloat = true;
         expression->value.data.valueFloat = token.data.valueFloat;
         return expression;
     }
@@ -77,13 +77,6 @@ static Expression* ExpressionAnalyze(){
         exit(1);
     }
 
-    //se qualquer uma dos parâmetros for do tipo float, então a expressão é do tipo float
-    expression->expressionType = expression->parameter0->expressionType == EXPRESSION_TYPE_FLOAT
-                                    ||
-                                 expression->parameter1->expressionType == EXPRESSION_TYPE_FLOAT
-                                 ? EXPRESSION_TYPE_FLOAT
-                                 : EXPRESSION_TYPE_INT;
-
     return expression;
 }
 
@@ -106,129 +99,53 @@ Program Parser_Analyze(){
 }
 
 void Parser_PrintExpression(Expression *expression){
-    if(expression->expressionType == EXPRESSION_TYPE_INT){
-        if(expression->operation == OPERATION_CONST){
-            printf("%ld\n", expression->value.data.valueInt);
-            return;
-        }
-        Parser_PrintExpression(expression->parameter0);
-        Parser_PrintExpression(expression->parameter1);
-    }else{
-        if(expression->operation == OPERATION_CONST){
-            printf("%lf\n", expression->value.data.valueFloat);
-            return;
-        }
-        Parser_PrintExpression(expression->parameter0);
-        Parser_PrintExpression(expression->parameter1);
+    if(expression->operation == OPERATION_CONST){
+        Number_Println(expression->value);
+        return;
     }
+    Parser_PrintExpression(expression->parameter0);
+    Parser_PrintExpression(expression->parameter1);
 }
 
-static Number ComputeExpression(Expression *a){
-    
-    Number result, x, y;
+static Number ComputeExpression(Expression *expression){
+    Number result, a, b;
 
-    if(a->expressionType == EXPRESSION_TYPE_INT)
-    {
-        result.isFloat = false;
-        switch (a->operation)
-        {
+    switch(expression->operation){
         case OPERATION_CONST:
-            result.data.valueInt = a->value.data.valueInt;
+            result = expression->value;
         break;
 
         case OPERATION_PLUS:
-            x = ComputeExpression(a->parameter0);
-            y = ComputeExpression(a->parameter1);
-            if(x.isFloat || y.isFloat){
-                result.isFloat = true;
-                result.data.valueFloat = x.data.valueFloat + y.data.valueFloat;
-            }
+            a = ComputeExpression(expression->parameter0);
+            b = ComputeExpression(expression->parameter1);
+            result = Number_Add(a, b);
         break;
 
         case OPERATION_MINUS:
-            x = ComputeExpression(a->parameter0);
-            y = ComputeExpression(a->parameter1);
-            if(x.isFloat || y.isFloat){
-                result.isFloat = true;
-                result.data.valueFloat = x.data.valueFloat - y.data.valueFloat;
-            }
+            a = ComputeExpression(expression->parameter0);
+            b = ComputeExpression(expression->parameter1);
+            result = Number_Minus(a, b);
         break;
 
         case OPERATION_MULT:
-            x = ComputeExpression(a->parameter0);
-            y = ComputeExpression(a->parameter1);
-            if(x.isFloat || y.isFloat){
-                result.isFloat = true;
-                result.data.valueFloat = x.data.valueFloat * y.data.valueFloat;
-            }
+            a = ComputeExpression(expression->parameter0);
+            b = ComputeExpression(expression->parameter1);
+            result = Number_Mult(a, b);
         break;
 
         case OPERATION_DIV:
-            x = ComputeExpression(a->parameter0);
-            y = ComputeExpression(a->parameter1);
-            if(x.isFloat || y.isFloat){
-                result.isFloat = true;
-                result.data.valueFloat = x.data.valueFloat / y.data.valueFloat;
-            }
+            a = ComputeExpression(expression->parameter0);
+            b = ComputeExpression(expression->parameter1);
+            result = Number_Div(a, b);
         break;
-        }
-    }else
-    {
-        result.isFloat = true;
-        switch (a->operation)
-        {
-        case OPERATION_CONST:
-            result.data.valueFloat = a->value.data.valueFloat;
-        break;
-
-        case OPERATION_PLUS:
-            x = ComputeExpression(a->parameter0);
-            y = ComputeExpression(a->parameter1);
-            if(!x.isFloat && !y.isFloat){
-                result.isFloat = false;
-                result.data.valueInt = x.data.valueInt + y.data.valueInt;
-            }
-        break;
-
-        case OPERATION_MINUS:
-            x = ComputeExpression(a->parameter0);
-            y = ComputeExpression(a->parameter1);
-            if(!x.isFloat && !y.isFloat){
-                result.isFloat = false;
-                result.data.valueInt = x.data.valueInt - y.data.valueInt;
-            }
-        break;
-
-        case OPERATION_MULT:
-            x = ComputeExpression(a->parameter0);
-            y = ComputeExpression(a->parameter1);
-            if(!x.isFloat && !y.isFloat){
-                result.isFloat = false;
-                result.data.valueInt = x.data.valueInt * y.data.valueInt;
-            }
-        break;
-
-        case OPERATION_DIV:
-            x = ComputeExpression(a->parameter0);
-            y = ComputeExpression(a->parameter1);
-            if(!x.isFloat && !y.isFloat){
-                result.isFloat = false;
-                result.data.valueInt = x.data.valueInt / y.data.valueInt;
-            }
-        break;
-        }
     }
 
     return result;
 }
 
 void Parser_ExecuteProgram(Program program){
-    Expression *expression = program.expression;
-    Number number = ComputeExpression(expression);
-    if(number.isFloat)
-        printf("%lf\n", number.data.valueFloat);
-    else
-        printf("%ld\n", number.data.valueInt);
+    Number number = ComputeExpression(program.expression);
+    Number_Println(number);
 }
 
 static void DestroyExpression(Expression *expression){
