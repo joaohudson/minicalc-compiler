@@ -46,7 +46,7 @@
     }
     else{
         result.isFloat = false;
-        result.data.valueInt = a.data.valueInt + b.data.valueInt;
+        result.data.valueInt = a.data.valueInt * b.data.valueInt;
     }
 
     return result;
@@ -63,7 +63,7 @@
     }
     else{
         result.isFloat = false;
-        result.data.valueInt = a.data.valueInt + b.data.valueInt;
+        result.data.valueInt = a.data.valueInt / b.data.valueInt;
     }
 
     return result;
