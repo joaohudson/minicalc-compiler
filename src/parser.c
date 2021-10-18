@@ -163,6 +163,9 @@ void Parser_ExecuteProgram(Program program){
 }
 
 static void DestroyExpression(Expression *expression){
+    if(expression == NULL)
+        return;
+
     DestroyExpression(expression->parameter0);
     DestroyExpression(expression->parameter1);
     free(expression);
