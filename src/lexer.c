@@ -94,7 +94,7 @@ Token Lexer_NextToken(){
     }else if(isalpha(buffer[position])){
         int begin = position;
 
-        while(position < bufferSize && !isspace(buffer[position]))
+        while(position < bufferSize && !isspace(buffer[position]) && (isalpha(buffer[position]) || isdigit(buffer[position]) || buffer[position] == '_') )
             ++position;
 
         int length = position - begin;
@@ -111,7 +111,7 @@ Token Lexer_NextToken(){
         }
         else if(strlen(tokenBuffer) < VALUES_MAX_IDENTIFIER_CAPACITY){
             token.type = TOKEN_IDENTIFIER;
-            strcpy(token.data.idenfier, tokenBuffer);
+            strcpy(token.data.identifier, tokenBuffer);
         }
         else{
             token.type = TOKEN_ERROR;
@@ -239,7 +239,7 @@ void Lexer_PrintToken(Token token){
         break;
 
     case TOKEN_IDENTIFIER:
-        printf("TOKEN_IDENTIFIER: %s\n", token.data.idenfier);
+        printf("TOKEN_IDENTIFIER: %s\n", token.data.identifier);
         break;
     
     default:
