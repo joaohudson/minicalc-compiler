@@ -1,6 +1,8 @@
 #ifndef _LEXER_H_
 #define _LEXER_H_
 
+#include "values.h"
+
 typedef enum{
     TOKEN_ERROR,
     TOKEN_EOF,
@@ -14,7 +16,11 @@ typedef enum{
     TOKEN_SYMBOL_CLOSEPAR,
     TOKEN_SYMBOL_OPENBRA,
     TOKEN_SYMBOL_CLOSEBRA,
-    TOKEN_FLOAT
+    TOKEN_FLOAT,
+    TOKEN_SYMBOL_EQUALS,
+    TOKEN_SYMBOL_SEMICOLON,
+    TOKEN_IDENTIFIER,
+    TOKEN_VAR
 }TokenType;
 
 typedef struct
@@ -23,6 +29,7 @@ typedef struct
     union{
         long valueInt;
         double valueFloat;
+        char idenfier[VALUES_MAX_IDENTIFIER_CAPACITY];
         char* message;
     } data;
 }Token;

@@ -59,7 +59,6 @@ Token Lexer_NextToken(){
         }
     }
 
-
     if(position >= bufferSize){
         token.type = TOKEN_EOF;
     }
@@ -107,9 +106,16 @@ Token Lexer_NextToken(){
         if(!strcmp(tokenBuffer, "print")){
             token.type = TOKEN_PRINT;
         }
+        else if(!strcmp(tokenBuffer, "var")){
+            token.type = TOKEN_VAR;
+        }
+        else if(strlen(tokenBuffer) < VALUES_MAX_IDENTIFIER_CAPACITY){
+            token.type = TOKEN_IDENTIFIER;
+            strcpy(token.data.idenfier, tokenBuffer);
+        }
         else{
             token.type = TOKEN_ERROR;
-            token.data.message = "Token inesperado!";
+            token.data.message = "Tamanho da variavel excede o limite maximo";
         }
     }
     else{
@@ -144,6 +150,14 @@ Token Lexer_NextToken(){
 
             case ']':
                 token.type = TOKEN_SYMBOL_CLOSEBRA;
+                break;
+
+            case '=':
+                token.type = TOKEN_SYMBOL_EQUALS;
+                break;
+
+            case ';':
+                token.type = TOKEN_SYMBOL_SEMICOLON;
                 break;
 
             default:
@@ -210,6 +224,22 @@ void Lexer_PrintToken(Token token){
 
     case TOKEN_FLOAT:
         printf("TOKEN_FLOAT: %lf\n", token.data.valueFloat);
+        break;
+
+    case TOKEN_VAR:
+        printf("TOKEN_VAR\n");
+        break;
+
+    case TOKEN_SYMBOL_EQUALS:
+        printf("TOKEN_SYMBOL_EQUALS\n");
+        break;
+
+    case TOKEN_SYMBOL_SEMICOLON:
+        printf("TOKEN_SYMBOL_SEMICOLON\n");
+        break;
+
+    case TOKEN_IDENTIFIER:
+        printf("TOKEN_IDENTIFIER: %s\n", token.data.idenfier);
         break;
     
     default:
