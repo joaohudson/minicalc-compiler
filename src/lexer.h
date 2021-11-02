@@ -29,7 +29,7 @@ typedef struct
     union{
         long valueInt;
         double valueFloat;
-        char identifier[VALUES_MAX_IDENTIFIER_CAPACITY];
+        char identifier[VALUES_IDENTIFIER_CAPACITY];
         char* message;
     } data;
 }Token;

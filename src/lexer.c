@@ -109,7 +109,7 @@ Token Lexer_NextToken(){
         else if(!strcmp(tokenBuffer, "var")){
             token.type = TOKEN_VAR;
         }
-        else if(strlen(tokenBuffer) < VALUES_MAX_IDENTIFIER_CAPACITY){
+        else if(strlen(tokenBuffer) < VALUES_IDENTIFIER_CAPACITY){
             token.type = TOKEN_IDENTIFIER;
             strcpy(token.data.identifier, tokenBuffer);
         }
