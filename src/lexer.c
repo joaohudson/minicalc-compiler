@@ -48,7 +48,7 @@ Token Lexer_NextToken(){
     while(position < bufferSize && isspace(buffer[position]))
         ++position;
 
-    if(buffer[position] == '#'){
+    while(position < bufferSize && buffer[position] == '#'){
         while(position < bufferSize){
             ++position;
 
