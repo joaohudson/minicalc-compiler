@@ -1,6 +1,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "file.h"
+#include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
@@ -38,15 +39,21 @@ static Expression* ExpressionAnalyze(){
     token = Lexer_NextToken();
     Lexer_CheckToken(token);
 
+    if(token.type == TOKEN_IDENTIFIER){
+        expression->operation = OPERATION_CONST_IDENTIFIER;
+        strcpy(expression->identifier, token.data.identifier);
+        return expression;
+    }
+
     if(token.type == TOKEN_INT){
-        expression->operation = OPERATION_CONST;
+        expression->operation = OPERATION_CONST_LITERAL;
         expression->value.isFloat = false;
         expression->value.data.valueInt = token.data.valueInt;
         return expression;
     }
 
     if(token.type == TOKEN_FLOAT){
-        expression->operation = OPERATION_CONST;
+        expression->operation = OPERATION_CONST_LITERAL;
         expression->value.isFloat = true;
         expression->value.data.valueFloat = token.data.valueFloat;
         return expression;
@@ -57,10 +64,14 @@ static Expression* ExpressionAnalyze(){
         closeTokenChar = ')';
         openTokenChar = '(';
     }
-    else{
+    else if(token.type == TOKEN_SYMBOL_OPENBRA){
         closeTokenType = TOKEN_SYMBOL_CLOSEBRA;
         closeTokenChar = ']';
         openTokenChar = '[';        
+    }
+    else{
+        fprintf(stderr, "Erro de sintaxe: era esperado um valor ou expressao\n");
+        exit(1);
     }
      
 
@@ -94,13 +105,68 @@ static Expression* ExpressionAnalyze(){
     return expression;
 }
 
-Program Parser_Analyze(){
-    Program program;
+static VariableDeclaration* VariableDeclarationAnalyze(){
+    VariableDeclaration *variable = malloc(sizeof(VariableDeclaration));
+    variable->next = NULL;
 
-    Token token;
+    Assert(variable != NULL, "[parser.c] - [VariableDeclarationAnalyze] - Erro ao alocar memoria");
+
+    Token token = Lexer_NextToken();
+    Lexer_CheckToken(token);
+
+    if(token.type != TOKEN_IDENTIFIER){
+        fprintf(stderr, "Erro de sintaxe: era esperado um identificar apos a palavra chave \'var\'\n");
+        exit(1);
+    }
+
+    strcpy(variable->identifier, token.data.identifier);
 
     token = Lexer_NextToken();
     Lexer_CheckToken(token);
+
+    if(token.type != TOKEN_SYMBOL_EQUALS){
+        fprintf(stderr, "Erro de sintaxe: token esperado \'=\'\n");
+        exit(1);
+    }
+
+    variable->expression = ExpressionAnalyze();
+
+    token = Lexer_NextToken();
+    Lexer_CheckToken(token);
+
+    if(token.type != TOKEN_SYMBOL_SEMICOLON){
+        fprintf(stderr, "Erro de sintaxe: token esperado \';\'\n");
+        exit(1);
+    }
+
+    return variable;
+}
+
+Program Parser_Analyze(){
+    Program program;
+    Token token;
+    VariableDeclaration *current = NULL;
+
+    token = Lexer_NextToken();
+    Lexer_CheckToken(token);
+
+    if(token.type == TOKEN_VAR){
+        program.variables = VariableDeclarationAnalyze();
+        current = program.variables;
+        
+        do{
+            token = Lexer_NextToken();
+            Lexer_CheckToken(token);
+
+            if(token.type != TOKEN_VAR){
+                break;
+            }
+
+            current->next = VariableDeclarationAnalyze();
+            current = current->next;
+
+        }while(true);
+    }
 
     if(token.type != TOKEN_PRINT){
         fprintf(stderr, "Erro de sintaxe: palavra chave \'print\' esperada no inicio da expressao\n");
@@ -113,7 +179,7 @@ Program Parser_Analyze(){
 }
 
 void Parser_PrintExpression(Expression *expression){
-    if(expression->operation == OPERATION_CONST){
+    if(expression->operation == OPERATION_CONST_LITERAL){
         Number_Println(expression->value);
         return;
     }
@@ -121,35 +187,51 @@ void Parser_PrintExpression(Expression *expression){
     Parser_PrintExpression(expression->parameter1);
 }
 
-static Number ComputeExpression(Expression *expression){
+static Expression* FindExpression(const VariableDeclaration *variables, const char *identifier){
+    while(variables){
+        if(!strcmp(variables->identifier, identifier))
+            return variables->expression;
+
+        variables = variables->next;
+    }
+
+    fprintf(stderr, "Erro de sintaxe: variavel nao declarada \'%s\'\n", identifier);
+    exit(1);
+}
+
+static Number ComputeExpression(Expression *expression, const VariableDeclaration *variables){
     Number result, a, b;
 
     switch(expression->operation){
-        case OPERATION_CONST:
+        case OPERATION_CONST_LITERAL:
             result = expression->value;
         break;
 
+        case OPERATION_CONST_IDENTIFIER:
+            result = ComputeExpression(FindExpression(variables, expression->identifier), variables);
+        break;
+
         case OPERATION_PLUS:
-            a = ComputeExpression(expression->parameter0);
-            b = ComputeExpression(expression->parameter1);
+            a = ComputeExpression(expression->parameter0, variables);
+            b = ComputeExpression(expression->parameter1, variables);
             result = Number_Add(a, b);
         break;
 
         case OPERATION_MINUS:
-            a = ComputeExpression(expression->parameter0);
-            b = ComputeExpression(expression->parameter1);
+            a = ComputeExpression(expression->parameter0, variables);
+            b = ComputeExpression(expression->parameter1, variables);
             result = Number_Minus(a, b);
         break;
 
         case OPERATION_MULT:
-            a = ComputeExpression(expression->parameter0);
-            b = ComputeExpression(expression->parameter1);
+            a = ComputeExpression(expression->parameter0, variables);
+            b = ComputeExpression(expression->parameter1, variables);
             result = Number_Mult(a, b);
         break;
 
         case OPERATION_DIV:
-            a = ComputeExpression(expression->parameter0);
-            b = ComputeExpression(expression->parameter1);
+            a = ComputeExpression(expression->parameter0, variables);
+            b = ComputeExpression(expression->parameter1, variables);
             result = Number_Div(a, b);
         break;
     }
@@ -157,8 +239,20 @@ static Number ComputeExpression(Expression *expression){
     return result;
 }
 
+void Parser_PrintVariables(VariableDeclaration *variables){
+    while(variables){
+        printf("Identificador: %s\n", variables->identifier);
+        Number number = ComputeExpression(variables->expression, variables);
+        printf("Valor: ");
+        Number_Println(number);
+
+        variables = variables->next;
+    }
+}
+
+
 void Parser_ExecuteProgram(Program program){
-    Number number = ComputeExpression(program.expression);
+    Number number = ComputeExpression(program.expression, program.variables);
     Number_Println(number);
 }
 
@@ -171,6 +265,18 @@ static void DestroyExpression(Expression *expression){
     free(expression);
 }
 
+static void DestroyVariableDeclarations(VariableDeclaration *variables){
+    VariableDeclaration *aux;
+
+    while(variables){
+        aux = variables;
+        variables = variables->next;
+        DestroyExpression(aux->expression);
+        free(aux);
+    }
+}
+
 void Parser_DestroyProgram(Program program){
+    DestroyVariableDeclarations(program.variables);
     DestroyExpression(program.expression);
 }
